@@ -20,6 +20,14 @@ func timeHandlerRefactored(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("The time is: " + tm))
 }
 
+func timeHandlerPassVariables(format string) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		tm := time.Now().Format(format)
+		w.Write([]byte("The time is: " + tm))
+	}
+	return http.HandlerFunc(fn)
+}
+
 func main() {
 	// Use the http.NewServeMux() function to create an empty servemux.
 	mux := http.NewServeMux()
@@ -33,7 +41,11 @@ func main() {
 
 	//Refactored from function above to utlize max.HandleFunc() method
 
+	th_pass_variable := timeHandlerPassVariables(time.RFC1123)
+
 	mux.HandleFunc("/anothertimerefactor", timeHandlerRefactored)
+
+	//Refactored from function above to prevent hardcoding time format
 
 	// Use the http.RedirectHandler() function to create a handler which 307
 	// redirects all requests it receives to http://example.org.
@@ -47,6 +59,8 @@ func main() {
 	mux.Handle("/time", th)
 
 	mux.Handle("/timerefactored", th_refactored)
+
+	mux.Handle("/passvariable", th_pass_variable)
 
 	log.Print("Listening...")
 
